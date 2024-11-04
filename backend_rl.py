@@ -163,6 +163,8 @@ def policy_gradient_loss(log_probs, reward):
     loss = -log_probs * reward
     return loss.mean()
 
+old_parameters = model_gru.parameters()
+
 
 @app.route("/translate/<input_sentence>")
 def translate(input_sentence):
@@ -178,7 +180,7 @@ def feedback_finetune(translation, feedback):
     if feedback == "good":
         reward = 1
     elif feedback == "normal":
-        reward = 0.3
+        reward = 0.5
     elif feedback == "bad":
         reward = -1
     print(reward)
@@ -212,6 +214,12 @@ def feedback_finetune(translation, feedback):
 
         loss.backward()
         optimizer.step()
+
+        if old_parameters == model_gru.parameters():
+            print("Doesn't work")
+        else:
+            print("Works")
+        old_parameters = model_gru.parameters()
         print("Fine-tuned based on feedback.")
         return "Success"
     return "Failure"
